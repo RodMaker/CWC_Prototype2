@@ -1,75 +1,119 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    // Horizontal Input
-    public float horizontalInput;
-    public float speed = 10.0f;
-    public float xRange = 10.0f;
+    // Local Multiplayer
+    public string inputID;
 
-    // Vertical Input
-    public float verticalInput;
-    public float verticalSpeed = 10.0f;
-    public float topZRange = 5.0f;
-    public float lowZRange = -1.5f;
-
+    // Inputs
+    private float horizontalInput;
+    private float verticalInput;
+    private float horizontalSpeed = 20.0f;
+    private float verticalSpeed = 20.0f;
+    
     // Projectile
     public GameObject projectilePrefab;
-    public Transform projectileSpawnPoint;
+    // public Transform projectileSpawnPoint; (já não é preciso)
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    // Left Player (Player 1)
+    // Horizontal Movement
+    private float leftPlayerLeftRange = -20;
+    private float leftPlayerRightRange = 0;
+    // Vertical Movement
+    private float leftPlayerUpZRange = 5.0f;
+    private float leftPlayerDownZRange = -1.5f;
+
+    // Right Player (Player 2)
+    // Horizontal Movement
+    private float rightPlayerLeftRange = 0;
+    private float rightPlayerRightRange = 20;
+    // Vertical Movement
+    private float rightPlayerUpZRange = 5.0f;
+    private float rightPlayerDownZRange = -1.5f;
+
 
     // Update is called once per frame
     void Update()
     {
-        // Limits the movement on the x axis
-        if (transform.position.x < -xRange)
+        // Left Player
+        if (inputID == "1")
         {
-            transform.position = new Vector3(-xRange, transform.position.y, transform.position.z);
-        }
+            // Check for left and right bounds, limits the movement on the x axis
+            if (transform.position.x < leftPlayerLeftRange)
+            {
+                transform.position = new Vector3(leftPlayerLeftRange, transform.position.y, transform.position.z);
+            }
 
-        if (transform.position.x > xRange)
+            if (transform.position.x > leftPlayerRightRange)
+            {
+                transform.position = new Vector3(leftPlayerRightRange, transform.position.y, transform.position.z);
+            }
+
+            // Check for up and down bounds, limits the movement on the z axis
+            if (transform.position.z < leftPlayerDownZRange)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, leftPlayerDownZRange);
+            }
+
+            if (transform.position.z > leftPlayerUpZRange)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, leftPlayerUpZRange);
+            }
+        }
+        
+        // Right Player
+        if (inputID == "2")
         {
-            transform.position = new Vector3(xRange, transform.position.y, transform.position.z);
-        }
+            // Check for left and right bounds, limits the movement on the x axis
+            if (transform.position.x < rightPlayerLeftRange)
+            {
+                transform.position = new Vector3(rightPlayerLeftRange, transform.position.y, transform.position.z);
+            }
 
-        // Limits the movement on the z axis
-        if (transform.position.z < lowZRange)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, lowZRange);
-        }
+            if (transform.position.x > rightPlayerRightRange)
+            {
+                transform.position = new Vector3(rightPlayerRightRange, transform.position.y, transform.position.z);
+            }
 
-        if (transform.position.z > topZRange)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, topZRange);
-        }
+            // Check for up and down bounds, limits the movement on the z axis
+            if (transform.position.z < rightPlayerDownZRange)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, rightPlayerDownZRange);
+            }
 
-        // Moves the player horizontaly
+            if (transform.position.z > rightPlayerUpZRange)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, rightPlayerUpZRange);
+            }
+        }
+        
+        /* One Player Movement Script
+        // Player movement left to right
         horizontalInput = Input.GetAxis("Horizontal");
-        transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * speed);
+        transform.Translate(Vector3.right * Time.deltaTime * speed * horizontalInput);
+        */
 
-        // Moves the player verticaly
-        verticalInput = Input.GetAxis("Vertical");
-        transform.Translate(Vector3.forward * verticalInput * Time.deltaTime * verticalSpeed);
+        //Two Players Movement
+        horizontalInput = Input.GetAxis("Horizontal" + inputID);
+        verticalInput = Input.GetAxis("Vertical" + inputID);
 
-        // Checks for input
-        if (Input.GetKeyDown(KeyCode.Space))
+        transform.Translate(Vector3.right * Time.deltaTime * horizontalSpeed * horizontalInput);
+        transform.Translate(Vector3.forward * Time.deltaTime * verticalSpeed * verticalInput);
+
+        if (Input.GetButtonDown("Shoot" + inputID))
         {
-            // Fires a projectile
-            Instantiate(projectilePrefab, projectileSpawnPoint.position, projectilePrefab.transform.rotation);
+            // No longer necessary to Instantiate prefabs
+            // Instantiate(projectilePrefab, transform.position, projectilePrefab.transform.rotation);
+
+            // Get an object object from the pool
+            GameObject pooledProjectile = ObjectPooler.SharedInstance.GetPooledObject();
+            if (pooledProjectile != null)
+            {
+                pooledProjectile.SetActive(true); // activate it
+                pooledProjectile.transform.position = transform.position; // position it at player
+            }
         }
     }
-    
-    /*void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("Game Over!");
-        Destroy(gameObject);
-        Destroy(other.gameObject);
-    }*/
 }

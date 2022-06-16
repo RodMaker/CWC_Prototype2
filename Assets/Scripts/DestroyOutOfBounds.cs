@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,12 +6,10 @@ public class DestroyOutOfBounds : MonoBehaviour
 {
     // Vertical Bounds
     private float topBound = 30;
-    private float lowBound = -10;
-
+    private float lowerBound = -10;
     // Horizontal Bounds
     private float leftBound = -30;
     private float rightBound = 30;
-
     // External references
     private GameManager gameManager;
 
@@ -24,24 +22,26 @@ public class DestroyOutOfBounds : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Instead of destroying the game object, deactivate it
         if (transform.position.z > topBound)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
-        else if (transform.position.z < lowBound) 
+        else if (transform.position.z < lowerBound) 
         {
             gameManager.AddLives(-1);
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
         else if (transform.position.x > rightBound)
         {
             gameManager.AddLives(-1);
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
         else if (transform.position.x < leftBound) 
         {
             gameManager.AddLives(-1);
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
+
     }
 }
